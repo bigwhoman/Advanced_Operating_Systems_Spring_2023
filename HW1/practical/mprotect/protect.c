@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define PAGE_SIZE 4096
-#define REGION_SIZE 4096
+#define REGION_SIZE 1024
 void* ptr;
 int* int_ptr;
 int C_read = 1;
