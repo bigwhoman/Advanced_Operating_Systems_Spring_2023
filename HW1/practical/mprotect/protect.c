@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define PAGE_SIZE 4096
-#define REGION_SIZE 1024
+#define REGION_SIZE 4096
 void* ptr;
 int* int_ptr;
 int C_read = 1;
@@ -56,7 +56,6 @@ void* thread_D() {
             printf("D : %d", *int_ptr);
         }
     else {
-        printf("coo");
         for (int i = 0;i < 100;i++) {
             *int_ptr = i;
         }
