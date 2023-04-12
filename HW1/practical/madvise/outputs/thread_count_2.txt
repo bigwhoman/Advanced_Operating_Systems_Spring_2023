@@ -1,0 +1,20 @@
+number of threads : 2
+
+ Performance counter stats for './madvise --number_of_threads 2':
+
+       104,404,693      cache-references                                              (66.32%)
+            89,726      cache-misses              #    0.086 % of all cache refs      (66.17%)
+                72      faults                                                      
+                72      page-faults                                                 
+       533,283,185      dTLB-loads                                                    (66.16%)
+             6,598      dTLB-load-misses          #    0.00% of all dTLB cache accesses  (66.30%)
+             8,765      iTLB-loads                                                    (67.89%)
+         1,461,826      iTLB-load-misses          # 16677.99% of all iTLB cache accesses  (67.55%)
+                39      context-switches                                            
+
+       0.310649158 seconds time elapsed
+
+       0.023996000 seconds user
+       0.591925000 seconds sys
+
+
