@@ -43,7 +43,7 @@ sudo rm -rf '10gbfile.bin'
 echo -e "-------------------------------- TESTING WRITE --------------------------\n\n\n\n"
 
 echo -e "------------test with cache - drop cache------------- \n"
-time ./create_write.o  
+time ./create_write.o
 sleep 1
 
 echo -e "------------test without cache - drop cache------------- \n"
