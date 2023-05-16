@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <string.h>
 
 #define FILENAME "10gbfile.bin"
-#define FILE_SIZE 10000000000L
-#define BUFFER_SIZE 1024 * 1024
+#define FILE_SIZE (10 * (1LL << 30)) // 10 GB
+#define BUFFER_SIZE 4096
+#ifndef O_DIRECT
+#define O_DIRECT 040000
+#endif
 
-void create_file(char *buffer,FILE* file);
-void read_file(char *buffer,FILE* file);
+
+void create_file(char *buffer,int *file);
+void read_file(char *buffer,int *file);
 
 
 int use_cache = 1; // default is true
@@ -32,61 +36,70 @@ int main(int argc, char *argv[])
     }
 
     
-    FILE *file;
+    int file = 0;
     char buffer[BUFFER_SIZE];
     long long int i, j;
-
+ 
     // Check if the file already exists
-    file = fopen(FILENAME, "r");
-    if (!file)
+    file = open(FILENAME, O_RDONLY);
+    if (file < 0)
     {
-        create_file(buffer,file);
+        printf("creating file \n");
+        create_file(buffer,&file);
     }
     else
     {
-        fclose(file);
+        close(file);
     }
     // Read the file 10 times
-    read_file(buffer,file);
+    read_file(buffer,&file);
     return 0;
 }
 
-void create_file(char *buffer,FILE* file)
+void create_file(char *buffer,int *file)
 {
     // Create the 10GB file
-    file = open(FILENAME, "w");
-    if (!file)
+    *file = open(FILENAME, O_WRONLY | O_CREAT, 0644);
+    if (*file < 0)
     {
         perror("Error creating file");
         exit(1);
     }
 
     // Write 10GB of data
+    
     for (int i = 0; i < FILE_SIZE / BUFFER_SIZE; i++)
     {
-        fwrite(buffer, 1, BUFFER_SIZE, file);
+        write(*file,buffer, BUFFER_SIZE);
     }
-    close(file);
+    printf("file created\n");
+    close(*file);
 }
 
-void read_file(char *buffer, FILE* file)
+void read_file(char *buffer, int *file)
 {
     for (int j = 0; j < 10; j++)
     {
         if (use_cache)
-            file = open(FILENAME, O_RDONLY);
+            *file = open(FILENAME, O_RDONLY);
         else 
-            file = open(FILENAME, O_RDONLY | O_DIRECT);
-        if (!file)
+            *file = open(FILENAME, O_RDONLY | O_DIRECT);
+        if (*file < 0)
         {
             perror("Error opening file");
             exit(1);
         }
 
-        while (read(file,buffer, BUFFER_SIZE) == BUFFER_SIZE)
+        ssize_t bytes_read;
+        while ((bytes_read = read(*file,buffer, BUFFER_SIZE)) == BUFFER_SIZE)
         {
-            //
+        
         }
-        close(file);
+        if (bytes_read < 0)
+        {
+            perror("Error reading file");
+            exit(1);
+        }
+        close(*file);
     }
 }
