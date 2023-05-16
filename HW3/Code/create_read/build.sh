@@ -5,9 +5,8 @@ then
   echo "Please run this script as root"
   exit
 fi
-sudo su
-#compile the program and remove the file if it exists
 
+#compile the program and remove the file if it exists
 gcc create_read.c -o create_read.o
 gcc create_write.c -o create_write.o
 sudo rm -rf '10gbfile.bin'
