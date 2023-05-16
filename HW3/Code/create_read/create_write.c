@@ -57,7 +57,10 @@ int main(int argc, char *argv[])
 void create_file(char *buffer,int *file)
 {
     // Create the 10GB file
-    *file = open(FILENAME, O_WRONLY | O_CREAT | O_DIRECT, 0644);
+    if  (use_cache == 0) 
+        *file = open(FILENAME, O_WRONLY | O_CREAT | O_DIRECT, 0644);
+    else 
+        *file = open(FILENAME, O_WRONLY | O_CREAT, 0644);
     if (*file < 0)
     {
         perror("Error creating file");
