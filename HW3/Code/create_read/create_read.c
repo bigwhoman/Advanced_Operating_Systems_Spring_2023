@@ -36,9 +36,15 @@ int main(int argc, char *argv[])
     }
 
     
+    char *buffer;
     int file = 0;
-    char buffer[BUFFER_SIZE];
-    long long int i, j;
+
+    // Allocate aligned memory for the buffer
+    if (posix_memalign((void**)&buffer, 512, BUFFER_SIZE) != 0)
+    {
+        perror("Error allocating buffer");
+        return 1;
+    }
  
     // Check if the file already exists
     file = open(FILENAME, O_RDONLY);
