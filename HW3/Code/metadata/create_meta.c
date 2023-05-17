@@ -148,7 +148,8 @@ void create_files(){
         close(fd);
         return;
     }
-    fsync(fd);
+    // fsync(fd);
+    free(buffer);
     close(fd);
     if (verbose){
     printf("File %s new uuid is : %s \n",name,uuid_str);  
@@ -176,7 +177,7 @@ void read_metadata(const char *filename){
     if (use_cache)
         fd = open(filename, O_RDWR , S_IRUSR | S_IWUSR);
     else
-        fd = open(filename, O_RDWR | O_DIRECT);
+        fd = open(filename, O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
     // printf("pointer : %p\n",&fd);
     if (fd == -1) {
         perror("open");
