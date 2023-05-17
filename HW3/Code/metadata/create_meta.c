@@ -22,6 +22,7 @@
 #endif
 
 void read_metadata(const char*);
+void read_metadataaa(const char *filename, char *uuid_str);
 void create_files();
 void read_directory(const char*);
 
@@ -126,16 +127,10 @@ void create_files(){
         return;
     }
     memcpy(buffer, uuid_str, sizeof(uuid_str)-1);
-    // printf("Buffer contents: ");
-    // for (size_t i = 0; i < sizeof(uuid_str)-1; i++) {
-    //     printf("%c", buffer[i]);
-    // }
-    // printf("\n");
-    // Open the file according to the cache parameter
     if (use_cache)
-        fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
+        fd = open(path, O_RDWR | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR);
     else
-        fd = open(path, O_WRONLY | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IWUSR);
+        fd = open(path, O_RDWR | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IWUSR);
 
     if (fd == -1) {
         printf("Error opening file\n");
@@ -148,15 +143,12 @@ void create_files(){
         close(fd);
         return ;
     }
-
-    // Write the metadata string to the end of the file
     if (write(fd, buffer, BUFFER_SIZE) == -1) {
         printf("Error writing metadata to file\n");
         close(fd);
         return;
     }
-    free(buffer);
-    // Close the file
+    fsync(fd);
     close(fd);
     if (verbose){
     printf("File %s new uuid is : %s \n",name,uuid_str);  
@@ -166,6 +158,7 @@ void create_files(){
     
 }
 
+
 void read_metadata(const char *filename){
     uuid_t uuid;
     char uuid_str[37];
@@ -173,102 +166,44 @@ void read_metadata(const char *filename){
     off_t offset;
     ssize_t nread;
 
+    char *boofer;
+    if (posix_memalign((void **)&boofer, BLOCK_SIZE, BUFFER_SIZE) != 0) {
+        perror("posix_memalign");
+        return;
+    }
     // Open the file for reading
-    fd = open(filename, O_RDONLY);
+
+    if (use_cache)
+        fd = open(filename, O_RDWR , S_IRUSR | S_IWUSR);
+    else
+        fd = open(filename, O_RDWR | O_DIRECT);
+    // printf("pointer : %p\n",&fd);
     if (fd == -1) {
         perror("open");
         return;
     }
 
-    // Move the file position indicator to the end of the file
     offset = lseek(fd, 0, SEEK_END);
+    offset = lseek(fd, -BUFFER_SIZE, SEEK_CUR);
     if (offset == -1) {
         perror("lseek");
         close(fd);
         return;
     }
-
-    // Move the file position indicator back by the size of the UUID
-    offset = lseek(fd, -(off_t)sizeof(uuid), SEEK_CUR);
-    if (offset == -1) {
-        perror("lseek");
-        close(fd);
-        return;
-    }
-
-    // Read the UUID from the file
-    nread = read(fd, uuid, sizeof(uuid));
-    if (nread == -1 || nread != sizeof(uuid)) {
+    nread = read(fd, boofer, BUFFER_SIZE);
+    if (nread == -1) {
         perror("read");
         close(fd);
         return;
     }
-
-    // Convert the UUID to a string
-    uuid_unparse(uuid, uuid_str);
-
+    memcpy(uuid_str,boofer, sizeof(uuid_str)-1);
+    free(boofer);
     // Print the UUID
-    printf("UUID of file %s is %s\n", filename, uuid_str);
+    if (verbose)
+        printf("UUID of file %s is %s\n", filename, uuid_str);
 
-    // Close the file
     close(fd);
 }
-
-// void read_metadata(const char *filename){
-//     uuid_t uuid;
-//     char uuid_str[37];
-//     int fd;
-//     off_t offset;
-//     ssize_t nread;
-//     char *buffer;
-
-//     // Open the file for reading
-//     if (use_cache)
-//         fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
-//     else
-//         fd = open(filename, O_RDONLY | O_DIRECT, S_IRUSR | S_IWUSR);
-//     if (fd == -1) {
-//         perror("open");
-//         return;
-//     }
-
-//     if (posix_memalign((void **)&buffer, BLOCK_SIZE, BUFFER_SIZE) != 0) {
-//         perror("posix_memalign");
-//         close(fd);
-//         return;
-//     }
-
-//     // Move the file position indicator to the beginning of the last block
-//     offset = lseek(fd, -BLOCK_SIZE, SEEK_END);
-//     if (offset == -1) {
-//         perror("lseek");
-//         close(fd);
-//         free(buffer);
-//         return;
-//     }
-
-//     // Read the entire block 
-//     nread = read(fd, buffer, BLOCK_SIZE);
-//     if (nread == -1 || nread != BLOCK_SIZE) {
-//         perror("read");
-//         close(fd);
-//         free(buffer);
-//         return;
-//     }
-
-//     // The UUID is stored at the end of the block, so extract it from there
-//     memcpy(uuid, buffer + BLOCK_SIZE - sizeof(uuid), sizeof(uuid)); 
-//     uuid_unparse(uuid, uuid_str);
-
-//     // Print the UUID
-//     if(verbose){
-//         printf("UUID of file %s is %s\n", filename, uuid_str);
-//     }
-
-//     // Close the file and free the resources
-//     close(fd);
-//     free(buffer);
-// }
 
 
 void read_directory(const char *dirname) {
