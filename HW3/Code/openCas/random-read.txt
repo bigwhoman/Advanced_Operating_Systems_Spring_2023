@@ -1,0 +1,39 @@
+iops-test-job: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=16
+...
+fio-3.28
+Starting 16 processes
+
+fio: terminating on signal 2
+
+iops-test-job: (groupid=0, jobs=16): err= 0: pid=45772: Wed May 17 19:09:34 2023
+  read: IOPS=1247, BW=4990KiB/s (5110kB/s)(2112MiB/433399msec)
+    slat (usec): min=2, max=81191, avg=33.70, stdev=257.53
+    clat (nsec): min=1513, max=6102.0M, avg=205032311.47, stdev=664804826.01
+     lat (usec): min=40, max=6102.0k, avg=205066.64, stdev=664803.22
+    clat percentiles (usec):
+     |  1.00th=[     72],  5.00th=[     77], 10.00th=[     81],
+     | 20.00th=[     88], 30.00th=[     89], 40.00th=[     94],
+     | 50.00th=[    110], 60.00th=[    151], 70.00th=[    159],
+     | 80.00th=[    200], 90.00th=[ 354419], 95.00th=[2122318],
+     | 99.00th=[3238003], 99.50th=[3607102], 99.90th=[4395631],
+     | 99.95th=[4596958], 99.99th=[4999611]
+   bw (  KiB/s): min=  114, max=28125, per=100.00%, avg=5442.83, stdev=282.56, samples=12711
+   iops        : min=   18, max= 7024, avg=1359.49, stdev=70.61, samples=12711
+  lat (usec)   : 2=0.01%, 4=0.01%, 10=0.01%, 20=0.01%, 50=0.07%
+  lat (usec)   : 100=45.40%, 250=34.98%, 500=0.32%, 750=0.01%, 1000=0.01%
+  lat (msec)   : 2=0.01%, 4=0.01%, 10=0.01%, 20=0.02%, 50=0.32%
+  lat (msec)   : 100=1.03%, 250=5.10%, 500=4.67%, 750=1.28%, 1000=0.39%
+  lat (msec)   : 2000=0.97%, >=2000=5.43%
+  cpu          : usr=0.12%, sys=0.36%, ctx=542851, majf=0, minf=467
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=100.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.1%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued rwts: total=540710,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=16
+
+Run status group 0 (all jobs):
+   READ: bw=4990KiB/s (5110kB/s), 4990KiB/s-4990KiB/s (5110kB/s-5110kB/s), io=2112MiB (2215MB), run=433399-433399msec
+
+Disk stats (read/write):
+    cas1-1: ios=540714/5, merge=0/0, ticks=110701280/5844, in_queue=110707124, util=100.00%, aggrios=103541/29, aggrmerge=206/15, aggrticks=26449344/5446, aggrin_queue=26457809, aggrutil=100.00%
+  sda: ios=103541/29, merge=206/15, ticks=26449344/5446, in_queue=26457809, util=100.00%
